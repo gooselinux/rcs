@@ -1,0 +1,114 @@
+From 2a814cf24019073a05f64c306a39b3202efe40ab Mon Sep 17 00:00:00 2001
+From: Romain Francoise <rfrancoise@debian.org>
+Date: Sun, 23 Mar 2008 00:57:09 +0100
+Subject: [PATCH] Various build tweaks
+
+Including:
+- allow building as root
+- install rcsfreeze and its man page
+- pass CFLAGS properly
+- install man pages in /usr/share/man
+- tweak default PATH when looking for sendmail
+---
+ configure.in    |    2 +-
+ man/Makefile.in |    7 ++++---
+ src/Makefile.in |    6 ++++--
+ src/conf.sh     |   11 -----------
+ 4 files changed, 9 insertions(+), 17 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index b6dd5d2..3c6aed3 100644
+--- a/configure.in
++++ b/configure.in
+@@ -243,7 +243,7 @@ rm -f conftest*
+ AC_PATH_PROG(ED, ed, ed)
+ 
+ ac_save_path=$PATH
+-PATH=/usr/lib:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
++PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/lib:$PATH
+ AC_PATH_PROGS(SENDMAIL, sendmail mail mailx)
+ PATH=$ac_save_path
+ case $SENDMAIL in
+diff --git a/man/Makefile.in b/man/Makefile.in
+index 8ff25df..ffc8c7c 100644
+--- a/man/Makefile.in
++++ b/man/Makefile.in
+@@ -34,8 +34,8 @@ INSTALL_DATA = @INSTALL_DATA@
+ PIC = @PIC@
+ 
+ prefix = @prefix@
+-man1dir = $(prefix)/man/man1
+-man5dir = $(prefix)/man/man5
++man1dir = $(prefix)/share/man/man1
++man5dir = $(prefix)/share/man/man5
+ man1ext = .1
+ man5ext = .5
+ 
+@@ -51,7 +51,8 @@ check dvi info TAGS ::
+ installdirs :: ../mkinstalldirs
+ 	-$(srcdir)/../mkinstalldirs $(man1dir) $(man5dir)
+ 
+-man1pages = ci co ident merge rcs rcsclean rcsdiff rcsintro rcsmerge rlog
++man1pages = ci co ident merge rcs rcsclean rcsdiff rcsintro rcsmerge rlog \
++		rcsfreeze
+ 
+ install :: installdirs
+ 	-for m in $(man1pages); do \
+diff --git a/src/Makefile.in b/src/Makefile.in
+index c27af21..5bc2147 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -116,16 +116,18 @@ install :: all installdirs
+ 	for p in $(PROGRAMS); do \
+ 	  $(INSTALL_PROGRAM) $$p $(bindir)/$$p; \
+ 	done
++	$(INSTALL_PROGRAM) rcsfreeze.sh $(bindir)/rcsfreeze
+ 
+ uninstall ::
+ 	for p in $(PROGRAMS); do \
+ 	  $(REMOVE) $(bindir)/$$p; \
+ 	done
++	$(REMOVE) $(bindir)/rcsfreeze
+ 
+ # Install RCS and (if applicable) GNU diff before running these tests.
+ # To test RCS before installing it, see the file INSTALL.RCS.
+ RCSTEST = \
+-	ALL_CFLAGS='$(ALL_CFLAGS)' CC='$(CC)' DIFF='$(DIFF)' \
++	ALL_CFLAGS="$(ALL_CFLAGS)" CC='$(CC)' DIFF='$(DIFF)' \
+ 	LDFLAGS='$(LDFLAGS)' LIBS='$(LIBS)' \
+ 	PATH=$(bindir):$$PATH \
+ 	sh $(srcdir)/rcstest
+@@ -153,7 +155,7 @@ maintainer-clean :: distclean
+ #(Unix
+ conf.h : conf.sh Makefile
+ 	$(REMOVE) a.*
+-	ALL_CFLAGS='$(ALL_CFLAGS)' \
++	ALL_CFLAGS="$(ALL_CFLAGS)" \
+ 	CC='$(CC)' \
+ 	COMPAT2='$(COMPAT2)' \
+ 	DIFF3='$(DIFF3)' DIFF3_BIN='$(DIFF3_BIN)' \
+diff --git a/src/conf.sh b/src/conf.sh
+index c9bf0b3..b28a504 100644
+--- a/src/conf.sh
++++ b/src/conf.sh
+@@ -73,17 +73,6 @@ case `echo -n` in
+ 	ech='echo -n' dots='... '
+ esac
+ 
+-$ech >&3 "$0: testing permissions $dots"
+-rm -f a.d &&
+-date >a.d &&
+-chmod 0 a.d &&
+-{ test -w a.d || cp /dev/null a.d 2>/dev/null; } && {
+-	echo >&3 "$n$0: This command should not be run with superuser permissions."
+-	exit 1
+-}
+-echo >&3 OK
+-rm -f a.d || exit
+-
+ $ech >&3 "$0: testing compiler for plausibility $dots"
+ echo 'main() { return 0; }' >a.c
+ rm -f a.exe a.out || exit
+-- 
+1.6.3.2.306.g4f4fa
+

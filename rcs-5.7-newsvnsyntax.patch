@@ -1,0 +1,37 @@
+diff -rup rcs-5.7/src/ident.c rcs-5.7mzk/src/ident.c
+--- rcs-5.7/src/ident.c	1995-06-16 08:19:24.000000000 +0200
++++ rcs-5.7mzk/src/ident.c	2007-07-17 15:23:15.000000000 +0200
+@@ -228,12 +228,18 @@ match(fp)   /* group substring between t
+    char line[BUFSIZ];
+    register int c;
+    register char * tp;
++   int COLON_C = 0;
++   int MAX_COLON = 1;
+ 
+    tp = line;
+-   while ((c = getc(fp)) != VDELIM) {
++   while ((c = getc(fp)) && (COLON_C < MAX_COLON)) {
+       if (c == EOF  &&  feof(fp) | ferror(fp))
+ 	 return c;
+       switch (ctab[c]) {
++     case COLON:
++                *tp++ = c;
++                COLON_C++;
++                break;
+ 	 case LETTER: case Letter:
+ 	    *tp++ = c;
+ 	    if (tp < line+sizeof(line)-4)
+@@ -245,7 +251,12 @@ match(fp)   /* group substring between t
+    }
+    if (tp == line)
+       return c;
+-   *tp++ = c;
++      if(c == ' '){
++          ungetc(c,fp);
++      }
++      else{
++          *tp++ = c;
++      }
+    if ((c = getc(fp)) != ' ')
+       return c ? c : '\n';
+    *tp++ = c;

@@ -1,0 +1,11 @@
+--- rcs-5.7/src/rcsdiff.c.option	1995-06-16 08:19:24.000000000 +0200
++++ rcs-5.7/src/rcsdiff.c	2005-10-10 15:10:49.000000000 +0200
+@@ -239,7 +239,7 @@
+ 	    case '5': case '6': case '7': case '8': case '9':
+ 	    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+ 	    case 'h': case 'i': case 'n': case 'p':
+-	    case 't': case 'u': case 'w':
++	    case 't': case 'u': case 'U': case 'w':
+ 		    *dcp++ = c;
+ 		    break;
+ 	    case 'q':

@@ -1,0 +1,44 @@
+diff -up rcs-5.7/man/Makefile.in~ rcs-5.7/man/Makefile.in
+--- rcs-5.7/man/Makefile.in~	2009-06-23 00:06:19.000000000 +0300
++++ rcs-5.7/man/Makefile.in	2009-06-23 00:08:06.000000000 +0300
+@@ -49,17 +49,17 @@ rcsfile.5 : rcsfile.5in
+ check dvi info TAGS ::
+ 
+ installdirs :: ../mkinstalldirs
+-	-$(srcdir)/../mkinstalldirs $(man1dir) $(man5dir)
++	-$(srcdir)/../mkinstalldirs $(DESTDIR)$(man1dir) $(DESTDIR)$(man5dir)
+ 
+ man1pages = ci co ident merge rcs rcsclean rcsdiff rcsintro rcsmerge rlog \
+ 		rcsfreeze
+ 
+ install :: installdirs
+ 	-for m in $(man1pages); do \
+-		$(INSTALL_DATA) $(srcdir)/$$m.1 $(man1dir)/$$m$(man1ext); \
++		$(INSTALL_DATA) $(srcdir)/$$m.1 $(DESTDIR)$(man1dir)/$$m$(man1ext); \
+ 	done
+ 	-{ test -f rcsfile.5 || cd $(srcdir); } && \
+-	$(INSTALL_DATA) rcsfile.5 $(man5dir)/rcsfile$(man5ext)
++	$(INSTALL_DATA) rcsfile.5 $(DESTDIR)$(man5dir)/rcsfile$(man5ext)
+ 
+ uninstall ::
+ 	for m in $(man1pages); do \
+diff -up rcs-5.7/src/Makefile.in~ rcs-5.7/src/Makefile.in
+--- rcs-5.7/src/Makefile.in~	2009-06-23 00:06:19.000000000 +0300
++++ rcs-5.7/src/Makefile.in	2009-06-23 00:07:29.000000000 +0300
+@@ -110,13 +110,13 @@ all :: $(PROGRAMS)
+ 	$(CC) -c $(ALL_CFLAGS) $<
+ 
+ installdirs :: ../mkinstalldirs
+-	$(srcdir)/../mkinstalldirs $(bindir)
++	$(srcdir)/../mkinstalldirs $(DESTDIR)$(bindir)
+ 
+ install :: all installdirs
+ 	for p in $(PROGRAMS); do \
+-	  $(INSTALL_PROGRAM) $$p $(bindir)/$$p; \
++	  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$p; \
+ 	done
+-	$(INSTALL_PROGRAM) rcsfreeze.sh $(bindir)/rcsfreeze
++	$(INSTALL_PROGRAM) rcsfreeze.sh $(DESTDIR)$(bindir)/rcsfreeze
+ 
+ uninstall ::
+ 	for p in $(PROGRAMS); do \
